@@ -33,11 +33,7 @@ reg [9:0] denomi;
 
 assign {r, g, b} = data [14:0];
 
-wire [2:0] colorcomp;
-
-assign colorcomp[2] = rbuf >= gbuf;
-assign colorcomp[1] = gbuf >= bbuf;
-assign colorcomp[0] = bbuf >= rbuf;
+reg [2:0] colorcomp;
 
 parameter RED = 2'h0;
 parameter BLUE = 2'h1;
@@ -82,9 +78,14 @@ begin
 			rbuf <= r;
 			gbuf <= g;
 			bbuf <= b;
+			done <= 0;
+			colorcomp[2] <= (r >= g);
+			colorcomp[1] <= (g >= b);
+			colorcomp[0] <= (b >= r);
 			state <= COMPARE;
 
 		end else if (state == COMPARE) begin
+
 
 			case (maxsel(colorcomp))
 				RED: max <= rbuf;
@@ -94,31 +95,28 @@ begin
 			endcase;
 
 			case (minsel(colorcomp))
-				RED: min <= rbuf;
-				BLUE: min <= bbuf;
-				GREEN: min <= gbuf;
-				WHITE: min <= 5'h00;
-			endcase;
-
-			state <= SETDIV;
-
-		end else if (state == SETDIV) begin
-
-			if (min == rbuf)
-				numer <= (bbuf - gbuf) << 6;
-			else if (min == bbuf)
-				numer <= (gbuf - rbuf) << 6;
-			else
-				numer <= (rbuf - bbuf) << 6;
+				RED: begin
+					min <= rbuf;
+					numer <= (bbuf - gbuf) << 6;
+				end
+				BLUE: begin
+					min <= bbuf;
+					numer <= (gbuf - rbuf) << 6;
+				end
+				GREEN: begin
+					min <= gbuf;
+					numer <= (rbuf - bbuf) << 6;
+				end
+				WHITE: begin
+					min <= 5'h00;
+					hue_invalid <= 1;
+					done <= 1;
+				end
+			endcase
 
 			state <= DIVIDE;
 
 		end else begin
-			if (max == min) begin
-				hue_invalid <= 1;
-				done <= 1;
-				hue <= 0;
-			end
 
 			state <= FETCH;
 			
