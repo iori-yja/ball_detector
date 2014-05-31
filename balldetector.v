@@ -1,5 +1,5 @@
 module balldetector(
-	input clk,
+	input inclk,
 	input res,
 	input ahref,
 	input avsync,
@@ -26,6 +26,7 @@ reg [7:0] data;
 reg loaded;
 reg sync_href;
 
+wire clk;
 assign led = data;
 
 /* data readable
@@ -110,6 +111,12 @@ sram sram_inst (
 	.wren ( write ),
 	.rdaddress ( rdaddr ),
 	.q ( rddata )
+);
+
+pll	pll_inst (
+	.inclk0 ( inclk ),
+	.c0 ( clk ),
+	.locked ( locked_sig )
 );
 
 endmodule

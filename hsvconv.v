@@ -29,7 +29,6 @@ reg [4:0] max;
 reg [1:0] state;
 
 reg signed [10:0] numer;
-reg [9:0] denomi;
 
 assign {r, g, b} = data [14:0];
 
