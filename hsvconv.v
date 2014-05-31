@@ -3,17 +3,17 @@ module rgb2hsv (
 	input res,
 	input read,
 	input [15:0] data,
-	output reg [4:0] saturation,
+	output [4:0] saturation,
 	output [4:0] value,
 	output reg [6:0] hue,
 	output reg hue_invalid,
 	output reg done
 );
-
-parameter FETCH = 2'b00,
-					COMPARE = 2'b01,
-					SETDIV = 2'b10,
-					DIVIDE = 2'b11;
+parameter DIVLATENCY = 4'h8;
+parameter FETCH = 3'h0,
+					COMPARE = 3'h1,
+					DIVIDE = 3'h2,
+					HUE = 3'h3;
 
 wire [4:0] r;
 wire [4:0] g;
@@ -35,12 +35,12 @@ assign {r, g, b} = data [14:0];
 
 reg [2:0] colorcomp;
 
-parameter RED = 2'h0;
-parameter BLUE = 2'h1;
-parameter GREEN = 2'h2;
-parameter WHITE = 2'h3;
+parameter RED = 3'h1;
+parameter BLUE = 3'h2;
+parameter GREEN = 3'h4;
+parameter WHITE = 3'h0;
 
-function [1:0] maxsel;
+function [3:0] maxsel;
 	input [3:0] colorcomp;
 begin
 	casex (colorcomp)
@@ -52,7 +52,7 @@ begin
 end
 endfunction
 
-function [1:0] minsel;
+function [3:0] minsel;
 	input [3:0] colorcomp;
 begin
 	casex (colorcomp)
@@ -64,10 +64,26 @@ begin
 end
 endfunction
 
+reg [3:0] clkcount;
+
+divider	div0 (
+	.clken ( (state == DIVIDE) ),
+	.clock ( clkcount[3] ),
+	.denom ( saturation ),
+	.numer ( numer ),
+	.quotient ( quot ),
+	.remain ( rem )
+);
+
+wire [10:0] quot;
+
 assign value = max;
+assign saturation = max - min;
+reg [3:0] divwait;
 
 always @(posedge clk)
 begin
+	clkcount <= clkcount + 4'b1;
 	if(res) begin
 		rbuf <= 5'h00;
 		gbuf <= 5'h00;
@@ -86,6 +102,7 @@ begin
 
 		end else if (state == COMPARE) begin
 
+			divwait <= 4'h0;
 
 			case (maxsel(colorcomp))
 				RED: max <= rbuf;
@@ -97,29 +114,38 @@ begin
 			case (minsel(colorcomp))
 				RED: begin
 					min <= rbuf;
-					numer <= (bbuf - gbuf) << 6;
+					numer <= (bbuf - gbuf) << 5;
+					state <= DIVIDE;
 				end
 				BLUE: begin
 					min <= bbuf;
-					numer <= (gbuf - rbuf) << 6;
+					numer <= (gbuf - rbuf) << 5;
+					state <= DIVIDE;
 				end
 				GREEN: begin
 					min <= gbuf;
-					numer <= (rbuf - bbuf) << 6;
+					numer <= (rbuf - bbuf) << 5;
+					state <= DIVIDE;
 				end
 				WHITE: begin
 					min <= 5'h00;
 					hue_invalid <= 1;
 					done <= 1;
+					state <= FETCH;
 				end
 			endcase
 
-			state <= DIVIDE;
+		end else if (state == DIVIDE) begin
 
-		end else begin
+			if (divwait == DIVLATENCY) begin
+				hue <= quot[10:4];
+				state <= FETCH;
+				divwait <= 4'h0;
+			end else begin
+				divwait <= divwait + 4'h1;
+			end
+		end else if (state == HUE) begin
 
-			state <= FETCH;
-			
 		end
 	end
 end
