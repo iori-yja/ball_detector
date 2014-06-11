@@ -1,5 +1,7 @@
+`timescale 10ns/10ns
 module test;
 
+wire button;
 reg clk;
 /* camera signal generator */
 
@@ -22,7 +24,7 @@ end
 initial begin
 	pclk = 1;
 	forever begin
-		#8 pclk = ~pclk;
+		#16 pclk = ~pclk;
 	end
 end
 
@@ -41,7 +43,7 @@ end
 initial begin
 	$dumpfile("test.vcd");
 	$dumpvars(0, test);
-#1
+#10
 
 	repeat (10) begin
 		vsync = 1;
@@ -71,21 +73,30 @@ wire spi_clk,
 wire [7:0] led;
 wire busy;
 
+wire [4:0] sat;
+wire [4:0] value;
+wire [6:0] hue;
+
 balldetector bd0 (
-	clk,
-	res,
-	href,
-	vsync,
-	pclk,
-	capture,
-	xclk,
-	data,
-	spi_clk,
-	spi_miso,
-	spi_mosi,
-	cs,
-	led,
-	busy
+	.force_enable(href),
+	.inclk(clk),
+	.res(res),
+	.ahref(href),
+	.avsync(vsync),
+	.apclk(pck),
+	.capture(capture),
+	.button(button),
+	.xclk(xclk),
+	.adata(data),
+	.spi_clk(spi_clk),
+	.spi_miso(spi_miso),
+	.spi_mosi(spi_mosi),
+	.cs(cs),
+	.led(led),
+	.busy(busy),
+	.saturation(sat),
+	.value(value),
+	.hue(hue)
 );
 
 endmodule

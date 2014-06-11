@@ -5,6 +5,8 @@ module balldetector(
 	input avsync,
 	input apclk,
 	input capture,
+	input button,
+	input force_enable,
 	output reg xclk,
 	input [7:0] adata,
 	input spi_clk,
@@ -18,6 +20,7 @@ module balldetector(
 	output [6:0] hue
 );
 
+wire hue_invalid;
 reg [1:0] cdiv;
 reg href;
 reg vsync;
@@ -72,6 +75,7 @@ assign busy = acapture;
 vline_capture ld0 (
 	ahref,
 	avsync,
+	force_enable,
 	acapture,
 	newframe
 );
@@ -101,6 +105,7 @@ rgb2hsv rh0(
 	saturation,
 	value,
 	hue,
+	hue_invalid,
 	done
 );
 
