@@ -71,7 +71,7 @@ end
 
 wire acapture;
 wire newframe;
-wire [8:0] horiz_address;
+wire [9:0] horiz_address;
 
 assign busy = acapture;
 
@@ -121,5 +121,7 @@ pll	pll_inst (
 	.c0 ( clk ),
 	.locked ( locked_sig )
 );
+
+//assign clk = inclk;
 
 endmodule

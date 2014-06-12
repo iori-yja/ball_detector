@@ -13,6 +13,104 @@ reg [7:0] data;
 
 parameter Tline = 160 * 2;
 
+reg spi_clk,
+		spi_mosi,
+		cs;
+
+initial begin
+	forever begin
+		spi_clk = 0;
+		spi_mosi = 0;
+		cs = 1;
+		//start
+		#50 spi_mosi = 1;
+		#10 cs = 0;
+		#40 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//2nd bit
+		spi_mosi = 1;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//3rd bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//4th bit
+		spi_mosi = 1;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//5th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//6th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//7th bit
+		spi_mosi = 1;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//8th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+		#20 cs = 1;
+		//=========//
+		spi_clk = 0;
+		spi_mosi = 0;
+		cs = 1;
+		//start
+		#50 spi_mosi = 1;
+		#10 cs = 0;
+		#40 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//2nd bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//3rd bit
+		spi_mosi = 1;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//4th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//5th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//6th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//7th bit
+		spi_mosi = 1;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//8th bit
+		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+		#20 cs = 1;
+	end
+end
+
 initial begin
 	clk = 0;
 	data = 0;
@@ -66,10 +164,6 @@ initial begin
 end
 
 wire capture;
-wire spi_clk,
-		spi_miso,
-		spi_mosi,
-		cs;
 wire [7:0] led;
 wire busy;
 
@@ -78,7 +172,6 @@ wire [4:0] value;
 wire [6:0] hue;
 
 balldetector bd0 (
-	.force_enable(href),
 	.inclk(clk),
 	.res(1'b0),
 	.ahref(href),

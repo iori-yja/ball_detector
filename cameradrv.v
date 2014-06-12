@@ -5,15 +5,12 @@ module pixcopy (
 	input acapture,
 	output reg write,
 	output reg [15:0] wrdata,
-	output [8:0] horiz_address
+	output reg [9:0] horiz_count
 );
 
 reg uphalf;
 reg [7:0] upbyte;
 reg loaded;
-reg [9:0] horiz_count;
-
-assign horiz_address = horiz_count[9:1];
 
 always @(posedge clk)
 begin
@@ -28,12 +25,12 @@ begin
 	end else begin
 		if (rdclk) begin
 			if (!loaded) begin
-				horiz_count <= horiz_count + 1'b1;
 				if (uphalf) begin
 					upbyte <= data;
 					uphalf <= 1'b0;
 					loaded <= 1'b1;
 				end else begin
+					horiz_count <= horiz_count + 1'b1;
 					wrdata <= {upbyte, data};
 					uphalf <= 1'b1;
 					write <= 1'b1;
@@ -72,7 +69,8 @@ function [2:0] nextstate;
 		case (state)
 			ABOVE_SKIP:
 			begin
-				if (linecount == 10'h0f4) begin
+				//if (linecount == 10'h0f4) begin
+				if (linecount == 10'h004) begin
 					nextstate = HOTLINE;
 				end else begin
 					nextstate = state;

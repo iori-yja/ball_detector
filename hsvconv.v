@@ -12,9 +12,9 @@ module rgb2hsv (
 parameter DIVLATENCY = 4'h8;
 parameter FETCH = 3'h0,
 					COMPARE = 3'h1,
-					DIVIDE = 3'h2,
-					CC = 3'h4,
-					HUE = 3'h3;
+					DIVSET = 3'h2,
+					DIVIDE = 3'h3,
+					HUE = 3'h4;
 
 wire [4:0] r;
 wire [4:0] g;
@@ -37,7 +37,7 @@ assign {r, g, b} = data [14:0];
 
 reg [2:0] colorcomp;
 reg [8:0] colordomain;
-assign hue = colordomain[8:0];
+assign hue = colordomain;
 
 parameter RED = 3'h1;
 parameter BLUE = 3'h2;
@@ -68,15 +68,11 @@ begin
 end
 endfunction
 
-reg [3:0] mccreg;
-
 reg [3:0] clkcount;
 wire [16:0] huediff60;
-reg [16:0] huediffbuf;
 wire [10:0] quot;
 
 divider	div0 (
-	.clken ( (state == DIVIDE) ),
 	.clock ( clkcount[3] ),
 	.denom ( saturation ),
 	.numer ( numer ),
@@ -109,19 +105,18 @@ begin
 			gbuf <= g;
 			bbuf <= b;
 			done <= 0;
-			colorcomp[2] <= (r >= g);
-			colorcomp[1] <= (g >= b);
-			colorcomp[0] <= (b >= r);
-			state <= CC;
+			state <= COMPARE;
+			clkcount <= 0;
+		end else if (state == COMPARE) begin
+
+			colorcomp[2] <= (rbuf >= gbuf);
+			colorcomp[1] <= (gbuf >= bbuf);
+			colorcomp[0] <= (bbuf >= rbuf);
 			divwait <= 4'h0;
 			multiwait <= 3'b001;
+			state <= DIVSET;
 
-		end else if (state == CC) begin
-
-			mccreg <= minsel(colorcomp);
-			state <= COMPARE;
-
-		end else if (state == COMPARE) begin
+		end else if (state == DIVSET) begin
 
 			divwait <= 4'h0;
 
@@ -132,7 +127,7 @@ begin
 				WHITE: max <= 5'h00;
 			endcase
 
-			case (mccreg)
+			case (minsel(colorcomp))
 				RED: begin
 					min <= rbuf;
 					numer <= (bbuf - gbuf) << 5;
@@ -163,7 +158,6 @@ begin
 			endcase
 
 		end else if (state == DIVIDE) begin
-
 			if (divwait == DIVLATENCY) begin
 				huediff <= quot[10:0];
 				state <= HUE;
@@ -172,7 +166,7 @@ begin
 			end
 		end else if (state == HUE) begin
 			if (multiwait[2] == 1'd1) begin
-				colordomain <= ({{3{huediff60[3]}}, huediff60[10:5]} + colordomain);
+				colordomain <= (huediff60[13:5] + colordomain);
 				done <= 1'b1;
 				state <= FETCH;
 			end else begin

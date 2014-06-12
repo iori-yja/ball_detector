@@ -37,40 +37,38 @@
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 module divider (
-	clken,
 	clock,
 	denom,
 	numer,
 	quotient,
 	remain);
 
-	input	  clken;
 	input	  clock;
-	input	[9:0]  denom;
+	input	[4:0]  denom;
 	input	[10:0]  numer;
 	output	[10:0]  quotient;
-	output	[9:0]  remain;
+	output	[4:0]  remain;
 
-	wire [9:0] sub_wire0;
+	wire [4:0] sub_wire0;
 	wire [10:0] sub_wire1;
-	wire [9:0] remain = sub_wire0[9:0];
+	wire [4:0] remain = sub_wire0[4:0];
 	wire [10:0] quotient = sub_wire1[10:0];
 
 	lpm_divide	LPM_DIVIDE_component (
 				.clock (clock),
-				.clken (clken),
 				.denom (denom),
 				.numer (numer),
 				.remain (sub_wire0),
 				.quotient (sub_wire1),
-				.aclr (1'b0));
+				.aclr (1'b0),
+				.clken (1'b1));
 	defparam
 		LPM_DIVIDE_component.lpm_drepresentation = "UNSIGNED",
 		LPM_DIVIDE_component.lpm_hint = "MAXIMIZE_SPEED=6,LPM_REMAINDERPOSITIVE=FALSE",
 		LPM_DIVIDE_component.lpm_nrepresentation = "SIGNED",
 		LPM_DIVIDE_component.lpm_pipeline = 1,
 		LPM_DIVIDE_component.lpm_type = "LPM_DIVIDE",
-		LPM_DIVIDE_component.lpm_widthd = 10,
+		LPM_DIVIDE_component.lpm_widthd = 5,
 		LPM_DIVIDE_component.lpm_widthn = 11;
 
 
@@ -92,20 +90,18 @@ endmodule
 // Retrieval info: CONSTANT: LPM_NREPRESENTATION STRING "SIGNED"
 // Retrieval info: CONSTANT: LPM_PIPELINE NUMERIC "1"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_DIVIDE"
-// Retrieval info: CONSTANT: LPM_WIDTHD NUMERIC "10"
+// Retrieval info: CONSTANT: LPM_WIDTHD NUMERIC "5"
 // Retrieval info: CONSTANT: LPM_WIDTHN NUMERIC "11"
-// Retrieval info: USED_PORT: clken 0 0 0 0 INPUT NODEFVAL "clken"
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL "clock"
-// Retrieval info: USED_PORT: denom 0 0 10 0 INPUT NODEFVAL "denom[9..0]"
+// Retrieval info: USED_PORT: denom 0 0 5 0 INPUT NODEFVAL "denom[4..0]"
 // Retrieval info: USED_PORT: numer 0 0 11 0 INPUT NODEFVAL "numer[10..0]"
 // Retrieval info: USED_PORT: quotient 0 0 11 0 OUTPUT NODEFVAL "quotient[10..0]"
-// Retrieval info: USED_PORT: remain 0 0 10 0 OUTPUT NODEFVAL "remain[9..0]"
-// Retrieval info: CONNECT: @clken 0 0 0 0 clken 0 0 0 0
+// Retrieval info: USED_PORT: remain 0 0 5 0 OUTPUT NODEFVAL "remain[4..0]"
 // Retrieval info: CONNECT: @clock 0 0 0 0 clock 0 0 0 0
-// Retrieval info: CONNECT: @denom 0 0 10 0 denom 0 0 10 0
+// Retrieval info: CONNECT: @denom 0 0 5 0 denom 0 0 5 0
 // Retrieval info: CONNECT: @numer 0 0 11 0 numer 0 0 11 0
 // Retrieval info: CONNECT: quotient 0 0 11 0 @quotient 0 0 11 0
-// Retrieval info: CONNECT: remain 0 0 10 0 @remain 0 0 10 0
+// Retrieval info: CONNECT: remain 0 0 5 0 @remain 0 0 5 0
 // Retrieval info: GEN_FILE: TYPE_NORMAL divider.v TRUE
 // Retrieval info: GEN_FILE: TYPE_NORMAL divider.inc FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL divider.cmp FALSE
