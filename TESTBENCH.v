@@ -11,7 +11,7 @@ reg pclk;
 reg [7:0] data;
 
 
-parameter Tline = 784 * 2;
+parameter Tline = 160 * 2;
 
 initial begin
 	clk = 0;
@@ -48,9 +48,9 @@ initial begin
 	repeat (10) begin
 		vsync = 1;
 		href = 0;
-		repeat (3 * Tline) @(negedge pclk);
+		repeat (1 * Tline) @(negedge pclk);
 		vsync <= 0;
-		repeat (17 * Tline) @(negedge pclk);
+		repeat (3 * Tline) @(negedge pclk);
 
 		repeat (480) begin
 			href <= 1;
@@ -65,7 +65,7 @@ initial begin
 	#100 $stop;
 end
 
-wire res, capture;
+wire capture;
 wire spi_clk,
 		spi_miso,
 		spi_mosi,
@@ -80,11 +80,10 @@ wire [6:0] hue;
 balldetector bd0 (
 	.force_enable(href),
 	.inclk(clk),
-	.res(res),
+	.res(1'b0),
 	.ahref(href),
 	.avsync(vsync),
-	.apclk(pck),
-	.capture(capture),
+	.apclk(pclk),
 	.button(button),
 	.xclk(xclk),
 	.adata(data),

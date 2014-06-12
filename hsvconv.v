@@ -111,7 +111,7 @@ begin
 			colorcomp[0] <= (b >= r);
 			state <= COMPARE;
 			divwait <= 4'h0;
-			multiwait <= 3'b0;
+			multiwait <= 3'b001;
 
 		end else if (state == COMPARE) begin
 

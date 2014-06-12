@@ -4,7 +4,6 @@ module balldetector(
 	input ahref,
 	input avsync,
 	input apclk,
-	input capture,
 	input button,
 	input force_enable,
 	output reg xclk,
@@ -17,7 +16,7 @@ module balldetector(
 	output busy,
 	output [4:0] saturation,
 	output [4:0] value,
-	output [6:0] hue
+	output [8:0] hue
 );
 
 wire hue_invalid;
@@ -28,6 +27,9 @@ reg [7:0] data;
 
 reg loaded;
 reg sync_href;
+reg sync_vsync;
+reg sync_spi_clk;
+reg sync_spi_mosi;
 
 wire clk;
 assign led = data;
@@ -48,14 +50,16 @@ begin
 		xclk <= 0;
 		loaded <= 0;
 		sync_href <= 0;
+		sync_vsync <= 1;
 	end else begin
 		cdiv <= cdiv + 2'b01;
 		xclk <= (cdiv) ? xclk : ~xclk;
-		if (ahref) begin
-			sync_href <= 1'b1;
-		end else begin
-			sync_href <= 1'b0;
-		end
+
+		sync_href <= ahref;
+		sync_vsync <= avsync;
+		sync_spi_clk <= spi_clk;
+		sync_spi_mosi <= spi_mosi;
+
 		if (apclk) begin
 			if (!loaded) begin
 				loaded <= 1'b1;
@@ -69,6 +73,7 @@ end
 
 wire acapture;
 wire newframe;
+wire [8:0] horiz_address;
 
 assign busy = acapture;
 
@@ -82,9 +87,6 @@ vline_capture ld0 (
 
 wire write;
 wire [15:0] wrdata;
-wire [11:0] wraddr;
-wire [15:0] rddata;
-wire [11:0] rdaddr;
 
 pixcopy pc0 (
 	clk,
@@ -93,15 +95,14 @@ pixcopy pc0 (
 	acapture,
 	write,
 	wrdata,
-	wraddr,
-	addrclr
+	horiz_address
 );
 
 rgb2hsv rh0(
 	clk,
-	res,
+	sync_vsync,
 	write,
-	data,
+	wrdata,
 	saturation,
 	value,
 	hue,
@@ -109,13 +110,12 @@ rgb2hsv rh0(
 	done
 );
 
-sram sram_inst (
-	.clock ( clk ),
-	.data ( wrdata ),
-	.wraddress ( wraddr ),
-	.wren ( write ),
-	.rdaddress ( rdaddr ),
-	.q ( rddata )
+spi_module sm0 (
+	.clk (clk),
+	.reset (button),
+	.mclk (sync_spi_clk),
+	.miso (spi_miso),
+	.mosi (sync_spi_mosi)
 );
 
 pll	pll_inst (

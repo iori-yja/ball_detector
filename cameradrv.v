@@ -5,26 +5,30 @@ module pixcopy (
 	input acapture,
 	output reg write,
 	output reg [15:0] wrdata,
-	output reg [11:0] wraddr,
-	input addrclr
+	output [8:0] horiz_address
 );
 
 reg uphalf;
 reg [7:0] upbyte;
 reg loaded;
+reg [9:0] horiz_count;
+
+assign horiz_address = horiz_count[9:1];
 
 always @(posedge clk)
 begin
+	if (write) begin
+		write <= 1'b0;
+	end
 	if (!acapture) begin
 		uphalf <= 1'b1;
 		loaded <= 1'b0;
 		write <= 1'b0;
-		if (addrclr) begin
-			wraddr <= 12'h000;
-		end
+		horiz_count<= 0;
 	end else begin
 		if (rdclk) begin
 			if (!loaded) begin
+				horiz_count <= horiz_count + 1'b1;
 				if (uphalf) begin
 					upbyte <= data;
 					uphalf <= 1'b0;
@@ -32,12 +36,9 @@ begin
 				end else begin
 					wrdata <= {upbyte, data};
 					uphalf <= 1'b1;
-					wraddr <= wraddr + 12'h001;
 					write <= 1'b1;
 					loaded <= 1'b1;
 				end
-			end else begin
-				write <= 1'b0;
 			end
 		end else begin
 			loaded <= 1'b0;
