@@ -51,7 +51,6 @@ endmodule
 module vline_capture (
 	input ahref,
 	input avsync,
-	input f_en,
 	output acapture,
 	output newframe
 );

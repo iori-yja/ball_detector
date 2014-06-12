@@ -13,6 +13,7 @@ parameter DIVLATENCY = 4'h8;
 parameter FETCH = 3'h0,
 					COMPARE = 3'h1,
 					DIVIDE = 3'h2,
+					CC = 3'h4,
 					HUE = 3'h3;
 
 wire [4:0] r;
@@ -28,7 +29,7 @@ reg [2:0] multiwait;
 reg [4:0] min;
 reg [4:0] max;
 
-reg [1:0] state;
+reg [2:0] state;
 
 reg signed [10:0] numer;
 
@@ -66,6 +67,8 @@ begin
 	endcase
 end
 endfunction
+
+reg [3:0] mccreg;
 
 reg [3:0] clkcount;
 wire [16:0] huediff60;
@@ -109,9 +112,14 @@ begin
 			colorcomp[2] <= (r >= g);
 			colorcomp[1] <= (g >= b);
 			colorcomp[0] <= (b >= r);
-			state <= COMPARE;
+			state <= CC;
 			divwait <= 4'h0;
 			multiwait <= 3'b001;
+
+		end else if (state == CC) begin
+
+			mccreg <= minsel(colorcomp);
+			state <= COMPARE;
 
 		end else if (state == COMPARE) begin
 
@@ -124,7 +132,7 @@ begin
 				WHITE: max <= 5'h00;
 			endcase
 
-			case (minsel(colorcomp))
+			case (mccreg)
 				RED: begin
 					min <= rbuf;
 					numer <= (bbuf - gbuf) << 5;

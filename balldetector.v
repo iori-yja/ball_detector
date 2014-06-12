@@ -5,7 +5,6 @@ module balldetector(
 	input avsync,
 	input apclk,
 	input button,
-	input force_enable,
 	output reg xclk,
 	input [7:0] adata,
 	input spi_clk,
@@ -16,10 +15,10 @@ module balldetector(
 	output busy,
 	output [4:0] saturation,
 	output [4:0] value,
-	output [8:0] hue
+	output [8:0] hue,
+	output hue_invalid
 );
 
-wire hue_invalid;
 reg [1:0] cdiv;
 reg href;
 reg vsync;
@@ -32,7 +31,6 @@ reg sync_spi_clk;
 reg sync_spi_mosi;
 
 wire clk;
-assign led = data;
 
 /* data readable
  *     v
@@ -80,7 +78,6 @@ assign busy = acapture;
 vline_capture ld0 (
 	ahref,
 	avsync,
-	force_enable,
 	acapture,
 	newframe
 );
@@ -112,10 +109,11 @@ rgb2hsv rh0(
 
 spi_module sm0 (
 	.clk (clk),
-	.reset (button),
+	.cs (cs),
 	.mclk (sync_spi_clk),
 	.miso (spi_miso),
-	.mosi (sync_spi_mosi)
+	.mosi (sync_spi_mosi),
+	.paraout(led)
 );
 
 pll	pll_inst (
