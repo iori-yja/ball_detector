@@ -1,4 +1,4 @@
-module feature_color(
+module ball_color(
 	input clk,
 	input [8:0] hue,
 	input [4:0] saturation,
