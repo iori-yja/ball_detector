@@ -26,14 +26,9 @@ parameter OUT = 4'h0,
 					BLUE = 4'h5,
 					BLUE_COMP = 4'h6,
 					YELLOW = 4'h7,
-					YELLOW_COMP = 4'h8,
-					RED_BLACK = 4'h9,
-					BLUE_BLACK = 4'ha,
-					YELLOW_BLACK = 4'hb;
+					YELLOW_COMP = 4'h8;
 
 parameter BLACK = 4'hc;
-
-reg [9:0] horiz_count_buf;
 
 reg [9:0] ball_edge_in;
 reg [9:0] ball_edge_out;
@@ -63,87 +58,92 @@ endfunction
 
 always @(posedge clk)
 begin
-	case (state)
-		OUT: begin
-			state <= VOID;
-		end
-		VOID: begin
-			if (write) begin
-				state <= VOID_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
-		end
-
-		VOID_COMP:
-		begin
-			case (color(.hue(huebuf), .val(valbuf), .sat(satbuf)) begin
-				RED: begin
-					state <= RED;
-					size_count <= 0;
-				end
-				BLUE: begin
-					state <= BLUE;
-					size_count <= 0;
-				end
-				YELLOW: begin
-					state <= YELLOW;
-					size_count <= 0;
-				end
-				BLACK: begin
+	case (mode)
+		FIRSTLINE: begin
+			case (state)
+				OUT: begin
 					state <= VOID;
+				end
+				VOID: begin
+					if (write) begin
+						state <= VOID_COMP;
+						huebuf <= hue;
+						satbuf <= sat;
+						valbuf <= val;
+						ball_edge_in <= horiz_count;
+					end
+				end
+
+				VOID_COMP:
+				begin
+					case (color(.hue(huebuf), .val(valbuf), .sat(satbuf)) begin
+						BLACK:
+							state <= VOID;
+						VOID:
+							state <= VOID;
+						default:
+							state <= color(.hue(huebuf), .val(valbuf), .sat(satbuf));
+					endcase
+				end
+				RED:
+					if (write) begin
+						state <= VOID_COMP;
+						huebuf <= hue;
+						satbuf <= sat;
+						valbuf <= val;
+					end
+				RED_COMP:
+				begin
+					case (color(.hue(huebuf), .val(valbuf), .sat(satbuf)) begin
+						BLACK:
+							state <= RED;
+						VOID:
+							state <= VOID;
+						default:
+							state <= color(.hue(huebuf), .val(valbuf), .sat(satbuf));
+					endcase
+				end
+				BLUE:
+					if (write) begin
+						state <= BLUE_COMP;
+						huebuf <= hue;
+						satbuf <= sat;
+						valbuf <= val;
+					end
+				BLUE_COMP:
+				begin
+					case (color(.hue(huebuf), .val(valbuf), .sat(satbuf)) begin
+						BLACK:
+							state <= BLUE;
+						VOID:
+							state <= VOID;
+						default:
+							state <= color(.hue(huebuf), .val(valbuf), .sat(satbuf));
+					endcase
+				end
+				YELLOW:
+					if (write) begin
+						state <= YELLOW_COMP;
+						huebuf <= hue;
+						satbuf <= sat;
+						valbuf <= val;
+					end
+				YELLOW_COMP:
+				begin
+					case (color(.hue(huebuf), .val(valbuf), .sat(satbuf)) begin
+						BLACK:
+							state <= YELLOW;
+						VOID:
+							state <= VOID;
+						default:
+							state <= color(.hue(huebuf), .val(valbuf), .sat(satbuf));
+					endcase
 				end
 			endcase
 		end
-		RED:
-			if (write) begin
-				state <= VOID_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
-		RED_COMP:
-		BLUE:
-			if (write) begin
-				state <= BLUE_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
-		BLUE_COMP:
-		YELLOW:
-			if (write) begin
-				state <= YELLOW_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
-		YELLOW_COMP:
-		RED_BLACK:
-			if (write) begin
-				state <= RED_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
-		BLUE_BLACK:
-			if (write) begin
-				state <= BLUE_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
-		YELLOW_BLACK:
-			if (write) begin
-				state <= YELLOW_COMP;
-				huebuf <= hue;
-				satbuf <= sat;
-				valbuf <= val;
-			end
+		LINE_SAMPLING: begin
 		end
 	endcase
-
 end
 
 endmodule
