@@ -167,10 +167,10 @@ wire capture;
 wire [7:0] led;
 wire busy;
 wire locked;
+wire [8:0] hue;
 
 balldetector bd0 (
 	.inclk(clk),
-	.res(vsync),
 	.ahref(href),
 	.avsync(vsync),
 	.apclk(pclk),
@@ -181,8 +181,10 @@ balldetector bd0 (
 	.spi_mosi(spi_mosi),
 	.cs(cs),
 	.led(led),
-	.busy(busy),
-	.locked_sig(locked)
+	.i2c_clk(i2c_clk),
+	.i2c_sda(i2c_sda),
+	.hue(hue),
+	.busy(busy)
 );
 
 endmodule

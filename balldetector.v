@@ -1,6 +1,5 @@
 module balldetector(
 	input inclk,
-	input res,
 	input ahref,
 	input avsync,
 	input apclk,
@@ -11,16 +10,16 @@ module balldetector(
 	input spi_mosi,
 	input cs,
 	output [7:0] led,
+	output [8:0] hue,
 	output i2c_clk,
 	inout i2c_sda,
-	output busy,
-	output locked_sig
+	output busy
 );
 
 wire hue_invalid;
 wire [4:0] saturation;
 wire [4:0] value;
-wire [8:0] hue;
+//wire [8:0] hue;
 reg [1:0] cdiv;
 reg href;
 reg vsync;
@@ -33,6 +32,10 @@ reg sync_spi_clk;
 reg sync_spi_mosi;
 
 wire clk;
+wire locked_sig;
+wire res;
+
+assign res = ~locked_sig;
 
 /* data readable
  *     v
