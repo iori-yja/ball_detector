@@ -40,18 +40,18 @@ function [3:0] color;
 	begin
 		if ((val > MIN_VAL) && (sat > MIN_SAT)) begin
 			if ((0 <= hue && hue < RED_HIGH) || (RED_LOW < hue && hue <= 360)) begin
-				color <= RED;
+				color = RED;
 			end else if (BLUE_LOW <= hue && hue <= BLUE_HIGH) begin
-				color <= BLUE;
+				color = BLUE;
 			end else if (YELLOW_LOW <= hue && hue <= YE_HIGH) begin
-				color <= YELLOW;
+				color = YELLOW;
 			end else begin
-				color <= VOID;
+				color = VOID;
 			end
 		end else if (val < BLACK_VAL) begin
-			color <= BLACK;
+			color = BLACK;
 		end else begin
-			color <= VOID;
+			color = VOID;
 		end
 	end
 endfunction

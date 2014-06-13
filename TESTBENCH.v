@@ -166,18 +166,14 @@ end
 wire capture;
 wire [7:0] led;
 wire busy;
-
-wire [4:0] sat;
-wire [4:0] value;
-wire [6:0] hue;
+wire locked;
 
 balldetector bd0 (
 	.inclk(clk),
-	.res(1'b0),
+	.res(vsync),
 	.ahref(href),
 	.avsync(vsync),
 	.apclk(pclk),
-	.button(button),
 	.xclk(xclk),
 	.adata(data),
 	.spi_clk(spi_clk),
@@ -186,9 +182,7 @@ balldetector bd0 (
 	.cs(cs),
 	.led(led),
 	.busy(busy),
-	.saturation(sat),
-	.value(value),
-	.hue(hue)
+	.locked_sig(locked)
 );
 
 endmodule
