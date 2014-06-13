@@ -111,6 +111,16 @@ rgb2hsv rh0(
 	done
 );
 
+/*
+pipette_center pp0 (
+	.clk (clk),
+	.write (done),
+	.hue (hue),
+	.shot (button),
+	.indicate (ind)
+);
+*/
+
 spi_module sm0 (
 	.clk (clk),
 	.cs (cs),
