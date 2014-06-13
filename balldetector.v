@@ -13,7 +13,8 @@ module balldetector(
 	output [8:0] hue,
 	output i2c_clk,
 	inout i2c_sda,
-	output busy
+	output busy,
+	input button
 );
 
 wire hue_invalid;
@@ -35,7 +36,7 @@ wire clk;
 wire locked_sig;
 wire res;
 
-assign res = ~locked_sig;
+assign res = ~(locked_sig && button);
 
 /* data readable
  *     v

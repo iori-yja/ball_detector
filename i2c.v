@@ -18,7 +18,7 @@ parameter WAITSTABLE = 3'h0,
 
 reg [2:0] state;
 reg [7:0] programcount;
-reg [16:0] waitcount;
+reg [17:0] waitcount;
 
 wire [7:0] byte;
 
@@ -39,32 +39,32 @@ assign byte = inst[7:0];
 always @(posedge ioclk or posedge res)
 begin
 	if (res) begin
-		programcount <= 6'h00;
-		waitcount <= 17'h00000;
+		programcount <= 8'h00;
+		waitcount <= 18'h00000;
 		state <= WAITSTABLE;
 	end else begin
 		case (state)
 			WAITSTABLE: begin
 				waitcount <= waitcount + 1'b1;
-				//if (waitcount == 17'h1_0000) begin
-				if (waitcount == 17'h0_0100) begin
+				//if (waitcount == 18'h1_0000) begin
+				if (waitcount == 18'h0_0100) begin
 					state <= FIRSTSETUP;
 				end
 			end
 			FIRSTSETUP: begin
 				inst <= instmem(programcount);
-				waitcount <= 17'h00000;
+				waitcount <= 18'h00000;
 				state <= WAITSETUP;
 				programcount <= instmem(programcount) ? programcount + 1'b1 : programcount;
 			end
 			WAITSETUP: begin
 				inst <= 12'h0_00;
 				waitcount <= waitcount + 1'b1;
-				if ((programcount != 8'h2f) && done && waitcount > 1) begin
+				if ((programcount != 8'h30) && done && waitcount > 18'h0_0018) begin
 					state <= FIRSTSETUP;
 				end
-				//if ((programcount == 8'h2f) && (waitcount == 17'h1_0000)) begin
-				if ((programcount == 8'h2f) && (waitcount == 17'h0_0300)) begin
+				//if ((programcount == 8'h30) && (waitcount == 18'h3_ffff)) begin
+				if ((programcount == 8'h30) && (waitcount == 18'h0_0800)) begin
 					state <= FIRSTSETUP;
 				end
 			end
@@ -81,7 +81,7 @@ end
 	 * 0000 = stop
 */
 function [11:0] instmem;
-input [5:0] pc;
+input [7:0] pc;
 case (pc)
 
 	8'h0: instmem = START;
@@ -116,7 +116,7 @@ case (pc)
 	8'h1a: instmem = TRANSMIT;
 	8'h1b: instmem = {4'h8, 8'h80};
 	8'h1c: instmem = TRANSMIT;
-	8'h1d: instmem = {4'h8, 8'h70};
+	8'h1d: instmem = {4'h8, 8'h74};
 	8'h1e: instmem = TRANSMIT;
 	8'h1f: instmem = END;
 
@@ -193,7 +193,6 @@ i2c_master im0 (
 	.done(done)
 );
 
-
 endmodule
 
 
@@ -264,14 +263,20 @@ begin
 		case (phase)
 			0:
 			begin
-				if (sendcount == 7) begin
-					sda_oe <= 1'b0;
-				end
 				i2c_clk <= 1'b0;
 				phase <= 2'h1;
 			end
 			1:
 			begin
+				if (sendcount == 8) begin
+					sda_oe <= 1'b0;
+				end
+				if (sendcount == 9) begin
+					sending <= 1'b0;
+					done <= 1;
+					sda_oe <= 1'b1;
+					phase <= 2'h0;
+				end
 				sda_out <= byte_buf[7];
 				byte_buf[7:1] <= byte_buf[6:0];
 				phase <= 2'h2;
@@ -283,10 +288,6 @@ begin
 			end
 			3:
 			begin
-				if (sendcount == 8) begin
-					sending <= 1'b0;
-					done <= 1;
-				end
 				phase <= 2'h0;
 				sendcount <= sendcount + 1'b1;
 			end
@@ -303,11 +304,37 @@ begin
 			begin
 				sda_out <= 1'b0;
 				starting <= 1'b0;
-				phase <= 1'b0;
+				phase <= 2'b0;
 				done <= 1'b1;
 			end
 		endcase
 	end else if (ending) begin
+		case (phase)
+			0:
+			begin
+				phase <= 2'h1;
+				i2c_clk <= 1'b0;
+				phase <= 2'h1;
+			end
+			1:
+			begin
+				sda_oe <= 1'b1;
+				sda_out <= 1'b0;
+				phase <= 2'h2;
+			end
+			2:
+			begin
+				i2c_clk <= 1'b1;
+				phase <= 2'h3;
+			end
+			3:
+			begin
+				sda_out <= 1'b1;
+				ending <= 1'b0;
+				phase <= 2'b0;
+				done <= 1'b1;
+			end
+		endcase
 	end
 end
 
