@@ -19,14 +19,18 @@ reg mclk_prev;
 reg [7:0] inbuf;
 reg [7:0] outbuf;
 
+reg cs_buf;
+
 always @(posedge clk)
 begin
 
 	mclk_prev <= mclk;
 
+	cs_buf <= cs;
+
 	case (mode)
 		2'h0: begin
-			if (cs) begin
+			if ({cs_buf, cs} == 2'b10) begin
 				mclk_prev <= 0;
 				paraout <= inbuf;
 				if (write) begin

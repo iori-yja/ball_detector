@@ -47,16 +47,17 @@ wire clk;
 wire locked_sig;
 wire res;
 
-//red
-assign led[0] = ((9'd330 < hue_buf) || (hue_buf < 9'd20));
-//blue
-assign led[1] = ((9'd160 < hue_buf) && (hue_buf < 9'd250));
-//yellow
-assign led[2] = ((9'd50 < hue_buf) && (hue_buf < 9'd70));
 
+////red
+//assign led[0] = ((9'd330 < hue_buf) || (hue_buf < 9'd20));
+////blue
+//assign led[1] = ((9'd160 < hue_buf) && (hue_buf < 9'd250));
+////yellow
+//assign led[2] = ((9'd50 < hue_buf) && (hue_buf < 9'd70));
 //
-assign led[3] = (value_buf > 5'hc);
-assign led[4] = (satbuf > 5'hc);
+////
+//assign led[3] = (value_buf > 5'hc);
+//assign led[4] = (satbuf > 5'hc);
 
 assign res = ~(locked_sig);
 
@@ -143,7 +144,6 @@ pipette_center pp0 (
 );
 */
 
-/*
 spi_module sm0 (
 	.clk (clk),
 	.cs (cs),
@@ -152,7 +152,6 @@ spi_module sm0 (
 	.mosi (sync_spi_mosi),
 	.paraout(led)
 );
-*/
 
 wire ioclk;
 
