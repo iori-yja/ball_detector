@@ -29,22 +29,22 @@ initial begin
 		#50 spi_clk = 0;
 
 		//2nd bit
-		spi_mosi = 1;
+		spi_mosi = 0;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 
 		//3rd bit
-		spi_mosi = 0;
-		#50 spi_clk = 1;
-		#50 spi_clk = 0;
-
-		//4th bit
 		spi_mosi = 1;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 
-		//5th bit
+		//4th bit
 		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//5th bit
+		spi_mosi = 1;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 
@@ -68,23 +68,23 @@ initial begin
 		spi_mosi = 0;
 		cs = 1;
 		//start
-		#50 spi_mosi = 1;
+		#50 spi_mosi = 0;
 		#10 cs = 0;
 		#40 spi_clk = 1;
 		#50 spi_clk = 0;
 
 		//2nd bit
-		spi_mosi = 0;
-		#50 spi_clk = 1;
-		#50 spi_clk = 0;
-
-		//3rd bit
 		spi_mosi = 1;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 
-		//4th bit
+		//3rd bit
 		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//4th bit
+		spi_mosi = 1;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 
@@ -94,17 +94,17 @@ initial begin
 		#50 spi_clk = 0;
 
 		//6th bit
-		spi_mosi = 0;
-		#50 spi_clk = 1;
-		#50 spi_clk = 0;
-
-		//7th bit
 		spi_mosi = 1;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 
-		//8th bit
+		//7th bit
 		spi_mosi = 0;
+		#50 spi_clk = 1;
+		#50 spi_clk = 0;
+
+		//8th bit
+		spi_mosi = 1;
 		#50 spi_clk = 1;
 		#50 spi_clk = 0;
 		#20 cs = 1;

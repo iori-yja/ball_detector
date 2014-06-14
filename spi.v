@@ -31,12 +31,13 @@ begin
 	case (mode)
 		2'h0: begin
 			if ({cs_buf, cs} == 2'b10) begin
-				mclk_prev <= 0;
-				paraout <= inbuf;
 				if (write) begin
 					outbuf <= parain;
 				end
-			end else if ({mclk_prev, mclk} == 2'b01) begin
+			end else if (2'b01) begin
+				paraout <= inbuf;
+			end
+			if ({mclk_prev, mclk} == 2'b01) begin
 				inbuf <= {inbuf[6:0], mosi};
 				miso <= outbuf[7];
 				outbuf[7:1] <= outbuf[6:0];

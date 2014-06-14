@@ -35,10 +35,12 @@ reg sync_href;
 reg sync_vsync;
 reg sync_spi_clk;
 reg sync_spi_mosi;
-reg [9:0] hue_buf;
+reg [8:0] hue_buf;
 reg [4:0] value_buf;
 reg [4:0] satbuf;
 
+wire [7:0] paraspi;
+wire [7:0] ledshadow;
 
 wire acapture;
 wire newframe;
@@ -48,16 +50,18 @@ wire locked_sig;
 wire res;
 
 
-////red
-//assign led[0] = ((9'd330 < hue_buf) || (hue_buf < 9'd20));
-////blue
-//assign led[1] = ((9'd160 < hue_buf) && (hue_buf < 9'd250));
-////yellow
-//assign led[2] = ((9'd50 < hue_buf) && (hue_buf < 9'd70));
+//red
+assign ledshadow[0] = ((9'd300 < hue_buf) || (hue_buf < 9'd50));
+//blue
+assign ledshadow[1] = ((9'd160 < hue_buf) && (hue_buf < 9'd250));
+//yellow
+assign ledshadow[2] = ((9'd50 < hue_buf) && (hue_buf < 9'd80));
+
 //
-////
-//assign led[3] = (value_buf > 5'hc);
-//assign led[4] = (satbuf > 5'hc);
+assign ledshadow[3] = (value_buf > 5'ha && value_buf < 5'h1a);
+assign ledshadow[4] = (satbuf > 5'h10);
+
+assign led = key1 ? (key0 ? paraspi : hue_buf[8:1]) : ledshadow;
 
 assign res = ~(locked_sig);
 
@@ -144,13 +148,21 @@ pipette_center pp0 (
 );
 */
 
-spi_module sm0 (
-	.clk (clk),
+servo_timer st0 ( 
+	.ioclk(ioclk),
+	.write_enable(1'b1),
+	.duty(8'h3),
+	.reset(res),
+	.pwm_out
+);
+
+spi_module sm0 ( .clk (clk),
 	.cs (cs),
 	.mclk (sync_spi_clk),
 	.miso (spi_miso),
 	.mosi (sync_spi_mosi),
-	.paraout(led)
+	.paraout(paraspi),
+	.parain(8'hca)
 );
 
 wire ioclk;
