@@ -167,7 +167,6 @@ wire capture;
 wire [7:0] led;
 wire busy;
 wire locked;
-wire [8:0] hue;
 
 balldetector bd0 (
 	.inclk(clk),
@@ -183,7 +182,6 @@ balldetector bd0 (
 	.led(led),
 	.i2c_clk(i2c_clk),
 	.i2c_sda(i2c_sda),
-	.hue(hue),
 	.busy(busy)
 );
 

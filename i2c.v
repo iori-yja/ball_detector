@@ -43,11 +43,13 @@ assign start = inst[9];
 assign endcomm = inst[8];
 assign byte = inst[7:0];
 
-reg [7:0] dataindex;
+wire [7:0] dataindex;
 reg [7:0] inbyte_buf;
 
 reg delete_buf;
 reg write_buf;
+
+assign dataindex = programcount[7:3];
 
 always @(posedge ioclk or posedge res)
 begin
@@ -56,7 +58,6 @@ begin
 		programcount <= 8'h00;
 		waitcount <= 18'h00000;
 		state <= WAITSTABLE;
-		dataindex <= 0;
 		delete_buf <= 0;
 		write_buf <= 0;
 	end else begin
@@ -84,7 +85,6 @@ begin
 				waitcount <= waitcount + 1'b1;
 				if (done && waitcount > 18'h0_0018) begin
 					state <= CAMERA_SETUP;
-					dataindex <= dataindex + 1'b1;
 				end
 			end
 			LCDSETUP: begin

@@ -17,6 +17,10 @@ module balldetector(
 	input key1
 );
 
+wire write;
+wire [15:0] wrdata;
+wire done;
+
 wire hue_invalid;
 wire [4:0] saturation;
 wire [4:0] value;
@@ -35,6 +39,10 @@ reg [9:0] hue_buf;
 reg [4:0] value_buf;
 reg [4:0] satbuf;
 
+
+wire acapture;
+wire newframe;
+wire [9:0] horiz_address;
 wire clk;
 wire locked_sig;
 wire res;
@@ -78,14 +86,10 @@ begin
 		sync_spi_mosi <= spi_mosi;
 
 		if ((horiz_address == 320)) begin
-			if (write) begin
-				hue_buf <= hue;
-				value_buf <= value;
-				satbuf <= saturation;
-			end
+			hue_buf <= hue;
+			value_buf <= value;
+			satbuf <= saturation;
 		end
-
-
 
 		if (apclk) begin
 			if (!loaded) begin
@@ -98,10 +102,6 @@ begin
 	end
 end
 
-wire acapture;
-wire newframe;
-wire [9:0] horiz_address;
-
 assign busy = acapture;
 
 vline_capture ld0 (
@@ -110,10 +110,6 @@ vline_capture ld0 (
 	acapture,
 	newframe
 );
-
-wire write;
-wire [15:0] wrdata;
-wire done;
 
 pixcopy pc0 (
 	clk,
@@ -185,7 +181,6 @@ i2c_control ic0 (
 	i2c_clk,
 	i2c_sda
 );
-
 
 //assign clk = inclk;
 
