@@ -11,7 +11,7 @@ reg pclk;
 reg [7:0] data;
 
 
-parameter Tline = 160 * 2;
+parameter Tline = 786 * 2;
 
 reg spi_clk,
 		spi_mosi,

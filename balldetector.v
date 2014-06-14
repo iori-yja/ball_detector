@@ -10,17 +10,17 @@ module balldetector(
 	input spi_mosi,
 	input cs,
 	output [7:0] led,
-	output [8:0] hue,
 	output i2c_clk,
 	inout i2c_sda,
 	output busy,
-	input button
+	input key0,
+	input key1
 );
 
 wire hue_invalid;
 wire [4:0] saturation;
 wire [4:0] value;
-//wire [8:0] hue;
+wire [8:0] hue;
 reg [1:0] cdiv;
 reg href;
 reg vsync;
@@ -31,12 +31,27 @@ reg sync_href;
 reg sync_vsync;
 reg sync_spi_clk;
 reg sync_spi_mosi;
+reg [9:0] hue_buf;
+reg [4:0] value_buf;
+reg [4:0] satbuf;
 
 wire clk;
 wire locked_sig;
 wire res;
 
-assign res = ~(locked_sig && button);
+//red
+assign led[0] = ((9'd330 < hue_buf) || (hue_buf < 9'd20));
+//blue
+assign led[1] = ((9'd160 < hue_buf) && (hue_buf < 9'd250));
+//yellow
+assign led[2] = ((9'd50 < hue_buf) && (hue_buf < 9'd70));
+
+//
+assign led[3] = (value_buf > 5'hc);
+assign led[4] = (satbuf > 5'hc);
+
+assign res = ~(locked_sig);
+
 
 /* data readable
  *     v
@@ -61,6 +76,16 @@ begin
 		sync_vsync <= avsync;
 		sync_spi_clk <= spi_clk;
 		sync_spi_mosi <= spi_mosi;
+
+		if ((horiz_address == 320)) begin
+			if (write) begin
+				hue_buf <= hue;
+				value_buf <= value;
+				satbuf <= saturation;
+			end
+		end
+
+
 
 		if (apclk) begin
 			if (!loaded) begin
@@ -122,6 +147,7 @@ pipette_center pp0 (
 );
 */
 
+/*
 spi_module sm0 (
 	.clk (clk),
 	.cs (cs),
@@ -130,6 +156,7 @@ spi_module sm0 (
 	.mosi (sync_spi_mosi),
 	.paraout(led)
 );
+*/
 
 wire ioclk;
 
@@ -141,10 +168,20 @@ pll	pll_inst (
 	.locked ( locked_sig )
 );
 
+i2c_test it0 (
+	res,
+	ioclk,
+	wreq,
+	dreq
+);
+
 i2c_control ic0 (
 	res,
 	clk,
 	ioclk,
+	0,
+	0,
+	8'h30,
 	i2c_clk,
 	i2c_sda
 );
@@ -153,3 +190,28 @@ i2c_control ic0 (
 //assign clk = inclk;
 
 endmodule
+
+module i2c_test (
+	input res,
+	input ioclk,
+	output reg wreq,
+	output reg dreq);
+
+reg [29:0] counter;
+
+always @(ioclk) begin
+	if (res) begin
+		wreq <= 0;
+		dreq <= 0;
+		counter <= 0;
+	end
+	counter <= counter + 1'b1;
+
+	if (counter == 30'h100_0000) begin
+		dreq <= 1;
+	end
+
+end
+
+endmodule
+

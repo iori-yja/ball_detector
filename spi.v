@@ -39,9 +39,6 @@ begin
 			end
 		end
 	endcase
-
-
-
 end
 
 endmodule

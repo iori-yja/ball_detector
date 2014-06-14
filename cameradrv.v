@@ -69,8 +69,7 @@ function [2:0] nextstate;
 		case (state)
 			ABOVE_SKIP:
 			begin
-				//if (linecount == 10'h0f4) begin
-				if (linecount == 10'h004) begin
+				if (linecount == 10'h0f4) begin
 					nextstate = HOTLINE;
 				end else begin
 					nextstate = state;
