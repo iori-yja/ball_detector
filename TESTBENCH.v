@@ -182,7 +182,8 @@ balldetector bd0 (
 	.led(led),
 	.i2c_clk(i2c_clk),
 	.i2c_sda(i2c_sda),
-	.busy(busy)
+	.busy(busy),
+	.pwm0(pwm)
 );
 
 endmodule

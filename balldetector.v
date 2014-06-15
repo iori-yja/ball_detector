@@ -14,7 +14,8 @@ module balldetector(
 	inout i2c_sda,
 	output busy,
 	input key0,
-	input key1
+	input key1,
+	output [9:0] pwm
 );
 
 wire write;
@@ -147,13 +148,39 @@ pipette_center pp0 (
 	.indicate (ind)
 );
 */
+wire ioclk;
+
+function turlet;
+	input [1:0] encode;
+	begin
+		case (encode)
+			2'b00: turlet = 128;
+			2'b01: turlet = 192; 
+			2'b10: turlet = 64;
+			2'b11: turlet = 128;
+		endcase
+	end
+endfunction
+
 
 servo_timer st0 ( 
 	.ioclk(ioclk),
 	.write_enable(1'b1),
-	.duty(8'h3),
-	.reset(res),
-	.pwm_out
+	.duty0(paraspi[0] ? 167 : 33 ),
+	.duty1(paraspi[1] ? 17 : 128 ),
+	.duty2(paraspi[0] ? 89 : 223 ),
+
+	.duty3(paraspi[2] ? 167 : 33 ),
+	.duty4(paraspi[3] ? 17 : 128 ),
+	.duty5(paraspi[2] ? 89 : 223 ),
+
+	.duty6(paraspi[4] ? 167 : 33 ),
+	.duty7(paraspi[5] ? 17 : 128 ),
+	.duty8(paraspi[4] ? 89 : 223 ),
+
+	.duty9(turlet(paraspi[7:6])),
+	.res(res),
+	.pwm_out(pwm)
 );
 
 spi_module sm0 ( .clk (clk),
@@ -165,7 +192,6 @@ spi_module sm0 ( .clk (clk),
 	.parain(8'hca)
 );
 
-wire ioclk;
 
 pll	pll_inst (
 	.inclk0 ( inclk ),
@@ -192,6 +218,7 @@ i2c_control ic0 (
 	i2c_clk,
 	i2c_sda
 );
+
 
 //assign clk = inclk;
 
